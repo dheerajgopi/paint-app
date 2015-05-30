@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block content %}
+<canvas id="gallerycanvas" width="1260" height="480" style="border:3px solid;background-color:white"></canvas>
+{% for pic in pics %}
+<p><a href="/gallery/{{ pic }}">{{ pic }}</p>
+{% endfor %}
+<script>
+var canvas = document.getElementById('gallerycanvas');
+var context = canvas.getContext('2d');
+
+var data =  {"line":[], "rectangle":[], "circle":[]};
+init();
+function init() {
+    var img_data = "{{ img }}";
+    if (img_data) {
+        data = JSON.parse(img_data.replace(/&#34;/g,'"'));
+        alert(data)
+        drawAll();
+    }    
+    return;
+}
+function drawAll() {
+    if (data.line.length) {
+        for (var i =0; i < data.line.length; i++) {
+	    context.beginPath();
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.strokeStyle = data.line[i].color;
+            context.lineWidth = data.line[i].thick;
+            context.moveTo(data.line[i].startx, data.line[i].starty);
+            context.lineTo(data.line[i].endx, data.line[i].endy);
+            context.closePath();
+            context.stroke();
+        }
+    }
+    if (data.rectangle.length) {
+        for (var i =0; i < data.rectangle.length; i++) {
+            
+	    if (data.rectangle[i].fillstyle == 1){
+		context.beginPath();
+	        context.fillStyle = data.rectangle[i].color;
+                context.lineWidth = data.rectangle[i].thick;
+            	context.fillRect(data.rectangle[i].cornerx, data.rectangle[i].cornery, data.rectangle[i].width, data.rectangle[i].height);
+		context.closePath();
+		context.fill();}
+	    else{
+		context.beginPath();
+	        context.strokeStyle = data.rectangle[i].color;
+                context.lineWidth = data.rectangle[i].thick;
+            	context.strokeRect(data.rectangle[i].cornerx, data.rectangle[i].cornery, data.rectangle[i].width, data.rectangle[i].height);
+
+                context.closePath();
+                context.stroke();}
+        }
+    }
+    if (data.circle.length) {    
+        for (var i =0; i < data.circle.length; i++) {
+            context.beginPath();
+            context.lineWidth = data.circle[i].thick;
+            context.arc(data.circle[i].centerx, data.circle[i].centery, data.circle[i].radius, 0, Math.PI*2, true);
+//	    context.strokeStyle = data.circle[i].color;
+//	    context.fillStyle = data.circle[i].color;
+	    if (data.circle[i].fillstyle == 0){
+		context.strokeStyle = data.circle[i].color;
+		context.closePath();
+                context.stroke();}
+	    else{
+		context.fillStyle = data.circle[i].color;
+		context.closePath();
+		context.fill();
+	    }
+        }
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% block content %}
+<canvas id="canvas" width="1260" height="480" style="border:3px solid; background-color:white"></canvas>
+
+<form><left>
+  <input type="button" value="Line" onclick="line()">
+  <input type="button" value="Rectangle" onclick="rectangle()">
+  <input type="button" value="Circle" onclick="circle()">
+  <input type="button" value="Clear Canvas" onclick="clearcanvas()">
+  <input type="radio" name="fos" onclick="fill()" value="1">fill
+  <input type="radio" name="fos" onclick="stroke()" value="0">border
+  <input type="button" value="-" onclick="decpixel()">
+  <input type="button" value="." onclick="defaultpixel()">
+  <input type="button" value="+" onclick="incpixel()">
+</left></form>
+
+<center>
+<table border=2 bgcolor=#FFFFFF align="center">
+    <td><div onclick = "color('#0000ff')" style ="width:20px;height:20px;background-color:#0000ff"></div><td>
+    <td><div onclick = "color('#009fff')" style ="width:20px;height:20px;background-color:#009fff"></div><td>
+    <td><div onclick = "color('#0fffff')" style ="width:20px;height:20px;background-color:#0fffff"></div><td>
+    <td><div onclick = "color('#bfffff')" style ="width:20px;height:20px;background-color:#bfffff"></div><td>
+    <td><div onclick = "color('#000000')" style ="width:20px;height:20px;background-color:#000000"></div><td>
+    <td><div onclick = "color('#333333')" style ="width:20px;height:20px;background-color:#333333"></div><td>
+    <td><div onclick = "color('#666666')" style ="width:20px;height:20px;background-color:#666666"></div><td>
+    <td><div onclick = "color('#999999')" style ="width:20px;height:20px;background-color:#999999"></div><td>
+    <td><div onclick = "color('#ffcc66')" style ="width:20px;height:20px;background-color:#ffcc66"></div><td>
+    <td><div onclick = "color('#ffcc00')" style ="width:20px;height:20px;background-color:#ffcc00"></div><td>
+    <td><div onclick = "color('#ffff00')" style ="width:20px;height:20px;background-color:#ffff00"></div><td>
+    <td><div onclick = "color('#ffff99')" style ="width:20px;height:20px;background-color:#ffff99"></div><td>
+    <td><div onclick = "color('#003300')" style ="width:20px;height:20px;background-color:#003300"></div><td>
+    <td><div onclick = "color('#555000')" style ="width:20px;height:20px;background-color:#555000"></div><td>
+  <tr>
+    <td><div onclick = "color('#00ff00')" style ="width:20px;height:20px;background-color:#00ff00"></div><td>
+    <td><div onclick = "color('#99ff99')" style ="width:20px;height:20px;background-color:#99ff99"></div><td>
+    <td><div onclick = "color('#f00000')" style ="width:20px;height:20px;background-color:#f00000"></div><td>
+    <td><div onclick = "color('#ff6600')" style ="width:20px;height:20px;background-color:#ff6600"></div><td>
+    <td><div onclick = "color('#ff9933')" style ="width:20px;height:20px;background-color:#ff9933"></div><td>
+    <td><div onclick = "color('#F5DEB3')" style ="width:20px;height:20px;background-color:#F5DEB3"></div><td>
+    <td><div onclick = "color('#330000')" style ="width:20px;height:20px;background-color:#330000"></div><td>
+    <td><div onclick = "color('#663300')" style ="width:20px;height:20px;background-color:#663300"></div><td>
+    <td><div onclick = "color('#cc6600')" style ="width:20px;height:20px;background-color:#cc6600"></div><td>
+    <td><div onclick = "color('#DEB887')" style ="width:20px;height:20px;background-color:#DEB887"></div><td>
+    <td><div onclick = "color('#aa0fff')" style ="width:20px;height:20px;background-color:#aa0fff"></div><td>
+    <td><div onclick = "color('#cc66cc')" style ="width:20px;height:20px;background-color:#cc66cc"></div><td>
+    <td><div onclick = "color('#ff66ff')" style ="width:20px;height:20px;background-color:#ff66ff"></div><td>
+    <td><div onclick = "color('#ff99ff')" style ="width:20px;height:20px;background-color:#ff99ff"></div><td>
+  </tr>
+</table>
+<center>
+
+<label>Save as:</label><input id="fname" type="text" value=""><button id="save" onclick="save()">Save</button>    
+
+<script>
+var canvas = document.getElementById("canvas");
+var context = canvas.getContext("2d");
+var image_data = {"line":[], "rectangle":[], "circle":[]};
+context.lineWidth = 1;
+var f;
+
+// creating JSON object listing the shapes drawn
+function save() {
+    if (fname.value==""){
+        alert("filename cannot be empty!");
+    }
+    else{
+    	var save_name = document.getElementById("fname").value;
+    	var data = JSON.stringify(image_data);
+    	$.post("/",{"filename": save_name, "imgdata": data});
+    	alert("Image saved as :" + save_name);
+    }
+}
+
+
+// fill
+function fill() {
+  f = 1;
+}
+
+// stroke
+function stroke() {
+  f = 0;
+}
+
+// line
+function line() {
+  canvas.onmousedown = linedown;
+  canvas.onmouseup = lineup;
+  canvas.onmousemove = linemove;
+
+  function linedown(event) {
+    img = context.getImageData(0, 0, canvas.width, canvas.height);
+    x1 = event.x;
+    y1 = event.y;
+    drag = true;
+  }
+
+  function lineup() {
+    drag = false;
+    image_data.line.push({"startx": x1, "starty": y1, "endx":x2, "endy": y2, "thick": context.lineWidth, "color": context.strokeStyle});
+    context.closePath();
+
+  }
+
+  function linemove(event) {
+    if (drag) {
+      context.putImageData(img, 0, 0);
+      x2 = event.x;
+      y2 = event.y;
+      context.beginPath();
+      context.moveTo(x1, y1);
+      context.lineTo(x2, y2);
+      context.stroke();
+    }
+  }
+}
+
+// rectangle
+function rectangle() {
+  canvas.onmousedown = rectdown;
+  canvas.onmouseup = rectup;
+  canvas.onmousemove = rectmove;
+
+  function rectdown(event) {
+    img = context.getImageData(0, 0, canvas.width, canvas.height);
+    corner_x = event.x;
+    corner_y = event.y;
+    drag = true;
+  }
+
+  function rectup(event) {
+    drag = false;
+    image_data.rectangle.push({"cornerx": corner_x, "cornery": corner_y, "width": width, "height": height, "thick": context.lineWidth, "color": context.strokeStyle, "fillstyle": f});
+    context.closePath();
+  }
+
+  function rectmove(event) {
+    if (drag) {
+      context.putImageData(img, 0, 0);
+      width = event.x - corner_x;
+      height = event.y - corner_y;
+      context.strokeRect(corner_x, corner_y, width, height);
+      if (f == 1) {
+        context.fillRect(corner_x, corner_y, width, height);
+      }
+    }
+  }
+}
+
+// circle
+function circle() {
+  canvas.onmousedown = circledown;
+  canvas.onmouseup = circleup;
+  canvas.onmousemove = circlemove;
+  var center_x = null;
+  var center_y = null;
+  var radius = null;
+
+  function circledown(event) {
+    img = context.getImageData(0, 0, canvas.width, canvas.height);
+    startx = event.x;
+    starty = event.y;
+    drag = true;
+  }
+
+  function circleup(event) {
+    drag = false;
+    image_data.circle.push({"centerx": center_x, "centery": center_y, "radius": radius, "thick": context.lineWidth, "color": context.strokeStyle, "fillstyle": f});
+    context.closePath();
+  }
+
+  function circlemove(event) {
+    if (drag) {
+      context.putImageData(img, 0, 0);
+      endx = event.x;
+      endy = event.y;
+      context.beginPath();
+      center_x = Math.round(Math.abs(endx + startx)/2);
+      center_y = Math.round(Math.abs(endy + starty)/2);
+      radius = Math.round(Math.sqrt(Math.pow(endx-startx,2)+Math.pow(endy-starty,2))/2);
+      context.arc(center_x, center_y, radius, 0, Math.PI*2, true); 
+      context.stroke();
+      if (f==1) {
+        context.fill();
+      }
+    }
+  }
+}
+
+// colour selection
+function color(colour) {
+  context.strokeStyle = colour;
+  context.fillStyle = colour;
+  selcolor = colour
+}
+
+// pixel size default
+function defaultpixel() {
+  context.lineWidth = 1;
+}
+
+// pixel size + 1
+function incpixel() {
+  context.lineWidth = context.lineWidth + 1;
+}
+
+// pixel size - 1
+function decpixel() {
+  if (context.lineWidth > 1) {
+    context.lineWidth = context.lineWidth - 1;
+  }
+}
+
+// clear canvas
+function clearcanvas() {
+  context.clearRect(0, 0, 1260, 480);
+  image_data ={"line":[], "rectangle":[], "circle":[]};
+}
+
+</script>
+{% endblock %}
