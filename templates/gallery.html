@@ -14,7 +14,6 @@ function init() {
     var img_data = "{{ img }}";
     if (img_data) {
         data = JSON.parse(img_data.replace(/&#34;/g,'"'));
-        alert(data)
         drawAll();
     }    
     return;
@@ -23,7 +22,6 @@ function drawAll() {
     if (data.line.length) {
         for (var i =0; i < data.line.length; i++) {
 	    context.beginPath();
-            context.clearRect(0, 0, canvas.width, canvas.height);
             context.strokeStyle = data.line[i].color;
             context.lineWidth = data.line[i].thick;
             context.moveTo(data.line[i].startx, data.line[i].starty);

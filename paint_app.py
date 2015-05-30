@@ -2,7 +2,7 @@
 
 #imports
 import sqlite3
-from flask import Flask, request, g, redirect, url_for, render_template, json, jsonify
+from flask import Flask, request, g, render_template
 
 #config
 DATABASE = "gallery.db"
